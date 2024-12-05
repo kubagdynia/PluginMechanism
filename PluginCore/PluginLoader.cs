@@ -4,8 +4,8 @@ namespace PluginCore;
 
 public static class PluginLoader<T> where T : class
 {
-    public static ICollection<T> LoadPlugins(string path, string searchPattern = "*.dll")
-    {
+    public static ICollection<T> LoadPlugins(string path, bool logErrors = true, string searchPattern = "*.dll")
+    { 
         // Check if the directory exists; if not, return an empty list
         if (!Directory.Exists(path))
         {
@@ -27,7 +27,7 @@ public static class PluginLoader<T> where T : class
             catch (Exception ex) when (ex is BadImageFormatException or FileLoadException)
             {
                 // Log or handle the exception if necessary
-                Console.WriteLine(ex.Message);
+                if (logErrors) LogError(ex.Message);
             }
         }
 
@@ -48,12 +48,14 @@ public static class PluginLoader<T> where T : class
                 // Log or handle the exception if necessary
                 foreach (var type in ex.Types)
                 {
+                    // Check if the type is not null and implements the plugin interface
                     if (type?.GetInterface(pluginType.FullName!) != null)
                     {
                         pluginTypes.Add(type);
                     }
                 }
-                Console.WriteLine(ex.Message);
+                
+                if (logErrors) LogError(ex.Message);
             }
         }
 
@@ -70,10 +72,13 @@ public static class PluginLoader<T> where T : class
             catch (Exception ex) when (ex is MissingMethodException or TargetInvocationException)
             {
                 // Log or handle the exception if necessary
-                Console.WriteLine(ex.Message);
+                if (logErrors) LogError(ex.Message);
             }
         }
 
         return plugins;
     }
+    
+    private static void LogError(string message)
+        => Console.WriteLine(message);
 }

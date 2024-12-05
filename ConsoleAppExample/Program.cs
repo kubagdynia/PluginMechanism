@@ -3,7 +3,8 @@ using PluginInterface;
 
 var plugins = new Dictionary<string, IPlugin>();
 
-var pluginList = PluginLoader<IPlugin>.LoadPlugins("plugins");
+var pluginList = PluginLoader<IPlugin>.LoadPlugins(path: "plugins", logErrors: false);
+
 foreach (var item in pluginList)
 {
     plugins.TryAdd(item.Name, item);
